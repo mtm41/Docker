@@ -4,3 +4,16 @@ services:
 
 before_install:
         - docker build -t manueltorres/frontend -f Dockerfile.dev .
+
+scripts:
+        - docker run manueltorres/frontend npm run test -- --coverage
+
+deploy:
+        provider: elasticbeanstalk
+        region: "us-west-2"
+        app: "frontend"
+        env: "Docker-env"
+        bucket_name: "elasticbeanstalk-us-west-2-3064766323238"
+        bucket_path: "frontend"
+        on:
+                branch: master
