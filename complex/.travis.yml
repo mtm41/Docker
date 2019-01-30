@@ -1,0 +1,23 @@
+sudo: required
+services:
+        - docker
+
+before_install:
+        - docker build -t manueltorres/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+        - docker fun manueltorres/react-test npm test -- --coverage
+
+after_success:
+        - docker build -t manueltorres/multi-client ./client
+        - docker build -t manueltorres/multi-nginx ./nginx
+        - docker build -t manueltorres/multi-server ./server
+        - docker build -t manueltorres/multi-worker ./worker
+        # Log in to the docker CLI with environment variables previously added in travis
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+        # Take those images and push them to docker hub
+        - docker push manueltorres/multi-client
+        - docker push manueltorres/multi-nginx
+        - docker push manueltorres/multi-server
+        - docker push manueltorres/multi-worker
+
